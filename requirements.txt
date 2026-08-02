@@ -1,0 +1,12 @@
+# Core (already on Jetson)
+torch>=2.0.0
+opencv-python>=4.5
+numpy>=1.24
+tqdm
+
+# LightGlue + SuperPoint (neural feature extractor and matcher)
+# Install from source (PyPI name is unstable):
+#   pip install git+https://github.com/cvg/LightGlue.git
+#   pip install kornia   # required by LightGlue
+
+kornia>=0.7

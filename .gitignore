@@ -1,0 +1,31 @@
+# Large generated index files (rebuild with build_index.py)
+index/
+
+# Downloaded satellite tiles (re-download with download_tiles.py)
+../gpsless_mapping/tiles/
+photo_20260705/original/tile_z19_*.png
+
+# LightGlue installed package (pip install lightglue)
+LightGlue/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Build artefacts
+gpsless_SIFT/build/
+gpsless_SIFT/tiles/
+gpsless_SIFT/index/
+gpsless_SIFT/__pycache__/
+
+# Nested git repo (gpsless_SIFT has its own .git)
+gpsless_SIFT/
+
+# Generated match visualisations
+result/
+result_query.png
+result_tile.png
+
+# Claude settings
+.claude/
