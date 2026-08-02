@@ -41,7 +41,8 @@ from lightglue import SuperPoint
 from lightglue.utils import rbd
 
 from config import (TILE_DIR, ZOOM_LEVEL, INDEX_DIR,
-                    SP_MAX_KEYPOINTS, SP_KEYPOINT_THRESHOLD)
+                    SP_MAX_KEYPOINTS, SP_KEYPOINT_THRESHOLD,
+                    TILE_SOURCES, choose_tile_source)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -60,10 +61,11 @@ def tile_to_tensor(path: Path) -> torch.Tensor | None:
     return tensor.unsqueeze(0)                         # (1, H, W)
 
 
-def build_index(tile_dir=None, zoom=None, index_dir=None):
+def build_index(tile_dir=None, zoom=None, index_dir=None, index_name=None):
     tile_dir  = Path(tile_dir  or TILE_DIR)
     zoom      = zoom           or ZOOM_LEVEL
     index_dir = Path(index_dir or INDEX_DIR)
+    index_name = index_name    or f'sp_index_z{zoom}.pkl'
     index_dir.mkdir(exist_ok=True)
 
     zoom_dir = tile_dir / str(zoom)
@@ -131,7 +133,7 @@ def build_index(tile_dir=None, zoom=None, index_dir=None):
         })
 
     # ── save ─────────────────────────────────────────────────────────────────
-    out_path = index_dir / f'sp_index_z{zoom}.pkl'
+    out_path = index_dir / index_name
     with open(out_path, 'wb') as f:
         pickle.dump(index, f, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -151,14 +153,30 @@ def build_index(tile_dir=None, zoom=None, index_dir=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Build SuperPoint feature index from satellite tiles')
+    parser.add_argument('--source',    choices=list(TILE_SOURCES.keys()), default=None,
+                        help='Tile source (esri / tgos). Prompts if omitted.')
     parser.add_argument('--zoom',      type=int, default=None,
                         help='Zoom level (default: from config.py)')
     parser.add_argument('--tile-dir',  default=None,
-                        help='Path to tiles folder (default: from config.py)')
+                        help='Path to tiles folder (overrides --source default)')
     parser.add_argument('--index-dir', default=None,
                         help='Where to save the index (default: from config.py)')
     args = parser.parse_args()
 
-    build_index(tile_dir=args.tile_dir,
+    # ── source selection ──────────────────────────────────────────────────────
+    if args.source:
+        selected = TILE_SOURCES[args.source]
+    else:
+        selected = choose_tile_source()
+
+    tile_dir  = args.tile_dir  or selected['dir']
+    index_dir = args.index_dir or INDEX_DIR
+
+    print(f'\n來源：{selected["name"]}')
+    print(f'Tile 目錄：{tile_dir}')
+    print(f'Index 儲存：{index_dir}/{Path(selected["index"]).name}')
+
+    build_index(tile_dir=tile_dir,
                 zoom=args.zoom,
-                index_dir=args.index_dir)
+                index_dir=index_dir,
+                index_name=Path(selected['index']).name)

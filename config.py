@@ -10,7 +10,7 @@ ZOOM_LEVEL = 19
 TILE_SIZE = 256  # px per tile (standard slippy-map)
 
 # Reuse tiles already downloaded by gpsless_mapping
-TILE_DIR = '../gpsless_mapping/tiles'
+TILE_DIR = '../gpsless_mapping/tiles'   # default (ESRI) — used when no interactive selection
 INDEX_DIR = 'index'
 
 # ESRI World Imagery — free satellite tiles, no API key required
@@ -19,6 +19,40 @@ TILE_SERVER_URL = (
     'https://server.arcgisonline.com/ArcGIS/rest/services/'
     'World_Imagery/MapServer/tile/{z}/{y}/{x}'
 )
+
+# ── Tile sources (used by build_index.py) ─────────────────────────────────────
+TILE_SOURCES = {
+    'esri': {
+        'name': 'ESRI World Imagery',
+        'desc': '全球衛星影像，免費，無需帳號',
+        'url' : TILE_SERVER_URL,
+        'dir' : '../gpsless_mapping/tiles',
+        'index': 'index/sp_index_z19_esri.pkl',
+    },
+    'tgos': {
+        'name': 'Taiwan TGOS 正射影像',
+        'desc': '台灣政府航拍正射影像，台灣本島解析度較高，免費',
+        'url' : ('https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/'
+                 'EPSG:3857/{z}/{y}/{x}'),
+        'dir' : '../gpsless_mapping/tiles_tgos',
+        'index': 'index/sp_index_z19_tgos.pkl',
+    },
+}
+
+
+def choose_tile_source() -> dict:
+    """Interactively ask the user which tile source to use.
+    Returns the selected source dict from TILE_SOURCES."""
+    keys = list(TILE_SOURCES.keys())
+    print('\n請選擇 Tile 來源：')
+    for i, key in enumerate(keys, 1):
+        src = TILE_SOURCES[key]
+        print(f'  {i}) {src["name"]:30s} — {src["desc"]}')
+    while True:
+        choice = input(f'\n請輸入編號 (1–{len(keys)}): ').strip()
+        if choice.isdigit() and 1 <= int(choice) <= len(keys):
+            return TILE_SOURCES[keys[int(choice) - 1]]
+        print(f'請輸入 1 到 {len(keys)} 之間的數字')
 
 # ── SuperPoint settings ───────────────────────────────────────────────────────
 # Max keypoints extracted per tile when building the index.
