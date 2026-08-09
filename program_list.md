@@ -16,6 +16,7 @@
 | `NOTES_zh.md` | `gpsless_superpoint/NOTES_zh.md` | 開發注意事項（中文）：NvMap 崩潰、尺度對齊、Homography Bug 修正等 10 項重點 |
 | `操作流程.md` | `gpsless_superpoint/操作流程.md` | 完整操作流程與指令（中文）：從下載圖資到取得定位結果的逐步說明 |
 | `program_list.md` | `gpsless_superpoint/program_list.md` | 本檔案：所有程式路徑與功能對照表 |
+| `correct_tilt.py` | `gpsless_superpoint/correct_tilt.py` | 傾斜角修正工具：對拍攝時有傾斜的無人機空拍照，套用透視校正（H = K·R·K⁻¹）還原為垂直俯視影像，再重新執行定位。支援自動讀取 `.attitude.json` 或手動指定 `--pitch`/`--roll` |
 | `.gitignore` | `gpsless_superpoint/.gitignore` | Git 排除清單：排除大型索引檔、LightGlue 套件、Tile 圖資、編譯產物 |
 
 ---
